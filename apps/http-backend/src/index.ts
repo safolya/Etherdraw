@@ -118,6 +118,9 @@ app.post("/room", middleware, async (req, res) => {
         adminId: userId
       }
     })
+    res.json({
+      roomId:room.id
+    })
   } catch (error) {
     res.json({
       message: "room already exists"
