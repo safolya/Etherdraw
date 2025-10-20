@@ -1,4 +1,4 @@
-import { WebSocketServer } from "ws";
+import { WebSocket, WebSocketServer } from "ws";
 import jwt, { JwtPayload } from "jsonwebtoken"
 import { JWT_SECRET } from "@repo/backend-common/config";
 
@@ -48,9 +48,34 @@ wss.on('connection', function connection(ws,request) {
     return
   }
 
+  users.push({
+    ws,
+    room:[],
+    userId
+  })
+
 
 
   ws.on('message', function message(data) {
-    ws.send("hello")
+    let parsedData;
+    if(typeof data != "string"){
+      parsedData=JSON.parse(data.toString());
+    }else{
+      parsedData=JSON.parse(data);
+    }
+
+    if(parsedData.type === "join_room"){
+       const user=users.find(x=>x.ws===ws);
+       user?.room.push(parsedData.roomId);
+    }
+
+    if(parsedData.type === "leave"){
+      const user=users.find(x=>x.ws===ws);
+      if(!user){
+        return;
+      }
+      user.room=user?.room.filter(x=>x===parsedData.roomId)
+    }
+
   });
 });
