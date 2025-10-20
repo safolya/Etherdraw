@@ -126,10 +126,6 @@ app.post("/room", middleware, async (req, res) => {
       message: "room already exists"
     })
   }
-
-
-  // Add your room creation logic here
-  res.json({ message: "Room logic not implemented" });
 });
 
 // This will only run if the server doesn't crash
