@@ -128,6 +128,22 @@ app.post("/room", middleware, async (req, res) => {
   }
 });
 
+app.get("/chats/:roomId", middleware, async (req , res)=>{
+  const roomId = Number(req.params.roomId);
+  const chats = await prismaClient.chat.findMany({
+    where:{
+      roomId:roomId
+    },
+    orderBy:{
+      id:'desc'
+    },
+    take:50
+  });
+  res.json({
+    chats
+  });
+});
+
 // This will only run if the server doesn't crash
 app.listen(port, () => {
   console.log(`HTTP backend listening at http://localhost:${port}`);

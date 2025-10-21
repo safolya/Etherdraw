@@ -1,6 +1,7 @@
 import { WebSocket, WebSocketServer } from "ws";
 import jwt, { JwtPayload } from "jsonwebtoken"
 import { JWT_SECRET } from "@repo/backend-common/config";
+import {prismaClient} from "@repo/db/client"
 
 const wss = new WebSocketServer({ port: 8080 });
 
@@ -56,7 +57,7 @@ wss.on('connection', function connection(ws,request) {
 
 
 
-  ws.on('message', function message(data) {
+  ws.on('message',async function message(data) {
     let parsedData;
     if(typeof data !== "string"){
       parsedData=JSON.parse(data.toString());
@@ -75,24 +76,51 @@ wss.on('connection', function connection(ws,request) {
       if(!user){
         return;
       }
-      user.room=user?.room.filter(x=>x===parsedData.roomId)
+      user.room=user?.room.filter(x=>x===parsedData.room)
     }
 
     if(parsedData.type === "chat"){
-      const roomId=parsedData.roomId;
-      const message=parsedData.message;
-
-
-    users.forEach(user=>{
-      if(user.room.includes(roomId)){
-        user.ws.send(JSON.stringify({
-          type:"chat",
-          message:message,
-          roomId:roomId
-        }))
+      const roomId = Number(parsedData.roomId);
+      const message = parsedData.message;
+      
+      if (isNaN(roomId)) {
+        console.error("Invalid room ID");
+        return;
       }
 
-    })
+      try {
+        // First check if room exists
+        const room = await prismaClient.room.findUnique({
+          where: { id: roomId }
+        });
+
+        if (!room) {
+          console.error(`Room ${roomId} not found`);
+          return;
+        }
+
+        // Create the chat message
+        const chat = await prismaClient.chat.create({
+          data: {
+            message: message,
+            roomId: roomId,
+            userId: userId
+          }
+        });
+
+        // Only broadcast if message was saved successfully
+        users.forEach(user => {
+          if(user.room.includes(roomId.toString())) {
+            user.ws.send(JSON.stringify({
+              type: "chat",
+              message: message,
+              roomId: roomId,
+            }));
+          }
+        });
+      } catch (error) {
+        console.error("Error storing chat message:", error);
+      }
 
     }
 
