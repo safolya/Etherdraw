@@ -20,7 +20,7 @@ function checkUser(token:string): string|null{
       return null
     }
 
-  if(!decoded || (decoded as JwtPayload).userId){
+  if(!decoded || !decoded.userId){
     return null
   }
   return decoded.userId;
@@ -58,7 +58,7 @@ wss.on('connection', function connection(ws,request) {
 
   ws.on('message', function message(data) {
     let parsedData;
-    if(typeof data != "string"){
+    if(typeof data !== "string"){
       parsedData=JSON.parse(data.toString());
     }else{
       parsedData=JSON.parse(data);
@@ -67,6 +67,7 @@ wss.on('connection', function connection(ws,request) {
     if(parsedData.type === "join_room"){
        const user=users.find(x=>x.ws===ws);
        user?.room.push(parsedData.roomId);
+       console.log(parsedData.roomId);
     }
 
     if(parsedData.type === "leave"){
@@ -75,6 +76,24 @@ wss.on('connection', function connection(ws,request) {
         return;
       }
       user.room=user?.room.filter(x=>x===parsedData.roomId)
+    }
+
+    if(parsedData.type === "chat"){
+      const roomId=parsedData.roomId;
+      const message=parsedData.message;
+
+
+    users.forEach(user=>{
+      if(user.room.includes(roomId)){
+        user.ws.send(JSON.stringify({
+          type:"chat",
+          message:message,
+          roomId:roomId
+        }))
+      }
+
+    })
+
     }
 
   });
