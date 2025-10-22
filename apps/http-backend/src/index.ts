@@ -144,6 +144,19 @@ app.get("/chats/:roomId", middleware, async (req , res)=>{
   });
 });
 
+app.get("/room/:slug", middleware, async (req , res)=>{
+  const slug = req.params.slug;
+  const room = await prismaClient.room.findFirst({
+    where:{
+      slug:slug
+    }
+  });
+  res.json({
+    room
+  });
+});
+
+
 // This will only run if the server doesn't crash
 app.listen(port, () => {
   console.log(`HTTP backend listening at http://localhost:${port}`);
