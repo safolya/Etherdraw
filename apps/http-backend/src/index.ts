@@ -128,23 +128,30 @@ app.post("/room", middleware, async (req, res) => {
   }
 });
 
-app.get("/chats/:roomId", middleware, async (req , res)=>{
-  const roomId = Number(req.params.roomId);
+app.get("/chats/:roomId", async (req , res)=>{
+  try {
+    const roomId = Number(req.params.roomId);
   const chats = await prismaClient.chat.findMany({
     where:{
       roomId:roomId
     },
     orderBy:{
-      id:'desc'
+      id:'asc'
     },
     take:50
   });
   res.json({
     chats
   });
+  } catch (error) {
+    res.status(500).json({
+      message: "Something went wrong",
+    });
+  }
+  
 });
 
-app.get("/room/:slug", middleware, async (req , res)=>{
+app.get("/room/:slug", async (req , res)=>{
   const slug = req.params.slug;
   const room = await prismaClient.room.findFirst({
     where:{
