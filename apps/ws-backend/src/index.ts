@@ -66,17 +66,18 @@ wss.on('connection', function connection(ws,request) {
     }
 
     if(parsedData.type === "join_room"){
-       const user=users.find(x=>x.ws===ws);
-       user?.room.push(parsedData.roomId);
-       console.log(parsedData.roomId);
+       const user = users.find(x => x.ws === ws);
+       const roomId = parsedData.roomId.toString();
+       user?.room.push(roomId);
+       console.log("User joined room:", roomId);
     }
 
     if(parsedData.type === "leave"){
-      const user=users.find(x=>x.ws===ws);
+      const user = users.find(x => x.ws === ws);
       if(!user){
         return;
       }
-      user.room=user?.room.filter(x=>x===parsedData.room)
+      user.room = user.room.filter(x => x !== parsedData.room);
     }
 
     if(parsedData.type === "chat"){

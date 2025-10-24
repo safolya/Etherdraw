@@ -8,7 +8,7 @@ async function getRoomid(slug: string){
 }
 
 export default async function ChatRoom1({params}: {params: {slug: string}}) {
-   const slug = params.slug;
+   const slug = (await params).slug;
    const roomId = await getRoomid(slug);
    return <ChatRoom id={roomId}/>;
 }
