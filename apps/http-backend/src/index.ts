@@ -5,12 +5,15 @@ import { CreateUsersSchema, SigninSchema, RoomSchema } from "@repo/common/types"
 import { prismaClient } from "@repo/db/client";
 import { authMiddle as middleware } from "./middleware";
 import bcrypt from "bcrypt";
+import cors from "cors"
 
 const app = express();
 const port = 3001;
 
 // --- FIX 1: Add this middleware to parse JSON request bodies ---
 app.use(express.json());
+app.use(cors());
+
 
 app.get("/", (req, res) => {
   res.send("Hello from HTTP backend!");
