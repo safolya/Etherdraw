@@ -68,8 +68,20 @@ export async function initDraw(canvas: HTMLCanvasElement, roomId: string, socket
             const width = e.clientX - startx;
             const height = e.clientY - starty;
             allShapes(existingShape, canvas, context);
-            context.strokeStyle = "white";
-            context.strokeRect(startx, starty, width, height);
+            //@ts-ignore
+            const selectedTool=window.selectedtool;
+            if(selectedTool==="rect"){
+                context.strokeStyle = "white";
+                context.strokeRect(startx, starty, width, height);
+            }else if(selectedTool==="circle"){
+              const centerX=startx+width/2;
+              const centerY=starty+height/2;
+              const radius=Math.max(width,height)/2;
+              context.beginPath();
+              context.arc(centerX,centerY,radius,0,Math.PI*2);
+              context.stroke();
+              context.closePath();
+            }
         }
     })
 

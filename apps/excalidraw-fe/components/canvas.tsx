@@ -7,7 +7,11 @@ export type Tool = "pencil" | "circle" | "rect"
 
 export function Canvas({ roomId, socket }: { roomId: string, socket: WebSocket }) {
     const canvasRef = useRef<HTMLCanvasElement>(null);
-    const [selectedtool, setSelectedTool] = useState<Tool>("circle")
+    const [selectedtool, setSelectedTool] = useState<Tool>("circle");
+    useEffect(()=>{
+        //@ts-ignore
+     window.selectedtool=selectedtool
+    },[selectedtool])
     useEffect(() => {
         const canvas = canvasRef.current;
         if (!canvas) return;
